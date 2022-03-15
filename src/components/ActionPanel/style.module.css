@@ -1,0 +1,23 @@
+.wrapper {
+    height: 25px;
+    box-sizing: border-box;
+    padding: 1px 5px;
+    font-size: 13px;
+    display: flex;
+    color: #fff;
+    gap: 5px;
+}
+.item {
+    padding: 2px 4px;
+    border: 1px solid #696b76;
+    box-shadow: 0 0 10px #000;
+    background: #363843;
+    display: flex;
+    align-content: center;
+    align-items: center;
+    border-radius: 3px;
+}
+
+.item label {
+    margin-right: 4px;
+}

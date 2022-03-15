@@ -1,58 +1,38 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
-import './App.css';
+import React, {useEffect, useState} from 'react';
+import Grid from "./components/Grid";
+import ActionPanel from "./components/ActionPanel";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
-    </div>
-  );
+    const [currency, setCurrency] = useState<string[]>(new URL(window.location.href).searchParams.get('c')?.split(',') || []);
+    const [grid, setGrid] = useState({rows: 4, columns: 4});
+
+    const changeQueryParam = (key: string, value: string) => {
+        const url = new URL(window.location.href);
+        url.searchParams.delete(key);
+        url.searchParams.append(key, value)
+        window.history.pushState(null, '', decodeURIComponent(url.toString()))
+
+        key === 'c' && setCurrency(url.searchParams.get('c')?.split(',') || []);
+    }
+
+    useEffect(() => changeQueryParam('grid', `${grid.columns}:${grid.rows}`), [grid])
+
+    useEffect(() => {
+        !currency.length && changeQueryParam('c', 'USDRUB,BINANCE:BTCUSDT,BINANCE:ETHUSDT,BINANCE:MATICUSDT,BINANCE:LUNAUSDT,BINANCE:ANCUSDT,BINANCE:GLMRUSDT,BINANCE:DOGEUSDT,BINANCE:MANAUSDT,BINANCE:BNBUSDT,HUOBI:AURORAUSDT,BINANCE:ILVUSDT,AAPL,FB,MARA,PYPL')
+    }, []);
+
+    return (
+        <div className="App">
+            <ActionPanel
+                grid={grid}
+                setGrid={setGrid}
+            />
+            <Grid
+                grid={grid}
+                currency={currency}
+            />
+        </div>
+    );
 }
 
 export default App;
