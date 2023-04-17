@@ -1,13 +1,19 @@
 import React, {useEffect, useState} from 'react';
 import Grid from "./components/Grid";
 import ActionPanel from "./components/ActionPanel";
-import {AdvancedRealTimeChartProps} from "react-ts-tradingview-widgets/dist/components/AdvancedRealTimeChart";
 
+export type Grid = {
+    columns: number;
+    rows: number;
+}
 
 function App() {
     const [currency, setCurrency] = useState<string[]>(new URL(window.location.href).searchParams.get('c')?.split(',') || []);
 
-    const [grid, setGrid] = useState((([columns = 4, rows = 4]) => ({rows: +rows, columns: +columns}))(new URL(window.location.href).searchParams.get('grid')?.split(':') || []));
+    const [grid, setGrid] = useState<Grid>((([columns = 4, rows = 4]) => ({
+        rows: +rows,
+        columns: +columns
+    }))(new URL(window.location.href).searchParams.get('grid')?.split(':') || []));
 
     const intervalQuery = new URL(window.location.href)?.searchParams?.get('interval');
     const availableInterval = ["1", "3", "5", "15", "30", "60", "120", "180", "240", "D", "W"];
