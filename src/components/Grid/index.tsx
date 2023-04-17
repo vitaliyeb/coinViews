@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './style.module.css';
+import styles from './style.module.scss';
 import {AdvancedRealTimeChartProps} from "react-ts-tradingview-widgets/dist/components/AdvancedRealTimeChart";
 import ChartWrapper from "../ChartWrapper/ChartWrapper";
 

@@ -17,6 +17,10 @@ body {
   display: none;
 }
 
+[draggable] #tradingview_widget_wrapper {
+  pointer-events: none;
+}
+
 input {
   outline: none;
   background-color: transparent;

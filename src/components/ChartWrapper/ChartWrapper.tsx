@@ -3,9 +3,10 @@ import React, {useRef} from "react";
 import {AdvancedRealTimeChartProps} from "react-ts-tradingview-widgets/dist/components/AdvancedRealTimeChart";
 import styles from './styles.module.scss';
 import DNDIcon from "./DNDIcon.svg";
-import {Grid} from "../../App";
+import {TGrid} from "../../App";
+import {changeQueryParam} from "../../utils/changeQueryParam";
 
-const computedGridPosition = ({rows, columns}: Grid, index: number) => {
+const computedGridPosition = ({rows, columns}: TGrid, index: number) => {
     const row = Math.ceil(index / columns);
     const column = (index % columns) || columns;
     return {
@@ -18,7 +19,7 @@ const computedGridPosition = ({rows, columns}: Grid, index: number) => {
 const ChartWrapper: React.FC<{
     symbol: string,
     interval: AdvancedRealTimeChartProps["interval"],
-    grid: Grid,
+    grid: TGrid,
     index: number
 }> = ({
           symbol,
@@ -28,10 +29,16 @@ const ChartWrapper: React.FC<{
       }) => {
     const wrapperRef = useRef<HTMLDivElement>(null);
 
+    const getIndex = (el: Element | ChildNode) => {
+        const {gridColumnStart, gridRowStart} = getComputedStyle(el as HTMLDivElement);
+        return (parseInt(gridRowStart) - 1) * grid.columns + (parseInt(gridColumnStart) - 1);
+    };
+
     const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
-        wrapperRef.current!.setAttribute('draggable', '');
+        const chartsWrapperEl = document.getElementById('chartsWrapper');
+        chartsWrapperEl!.setAttribute('draggable', '');
+        setTimeout(() => wrapperRef.current!.setAttribute('draggable', ''), 0)
         const el = e.currentTarget;
-        (wrapperRef.current as HTMLDivElement).style.background = 'green !important';
         el.style.zIndex = '15';
         el.style.position = 'fixed';
         const {width, height} = el.parentElement!.getBoundingClientRect();
@@ -40,6 +47,8 @@ const ChartWrapper: React.FC<{
     }
 
     const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
+        const chartsWrapperEl = document.getElementById('chartsWrapper');
+        chartsWrapperEl!.removeAttribute('draggable');
         wrapperRef.current!.removeAttribute('draggable');
         const el = e.currentTarget;
         el.style.zIndex = 'auto';
@@ -49,10 +58,15 @@ const ChartWrapper: React.FC<{
         el.style.top = 'auto';
         el.style.left = 'auto';
         wrapperRef.current!.style.pointerEvents = 'all';
+
+        changeQueryParam('c', Array.from(document.getElementById('chartsWrapper')!.childNodes)
+            .sort((a, b) => getIndex(a) - getIndex(b))
+            .map(el => (el as HTMLDivElement).getAttribute('data-symbol'))
+            .join(','))
     }
 
     const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
-        wrapperRef.current!.style.pointerEvents = 'none';
+
         const el = e.currentTarget;
         const topOffset = 60;
         const leftOffset = 0;
@@ -63,22 +77,22 @@ const ChartWrapper: React.FC<{
 
     const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
         const chartsWrapperEl = document.getElementById('chartsWrapper');
-        const charts = Array.from(chartsWrapperEl!.childNodes);
+        const charts = Array.from(chartsWrapperEl!.childNodes)
+            .sort((a, b) => getIndex(a) - getIndex(b));
+
         const draggableEl = chartsWrapperEl!.querySelector('[draggable]');
         const currentEl = e.currentTarget;
-
         if (currentEl === draggableEl) return;
 
-        const draggableElIdx = charts.findIndex(el => el === draggableEl);
-        const currentElIdx = charts.findIndex(el => el === currentEl);
+        const draggableElIdx = getIndex(draggableEl!);
+        const currentElIdx = getIndex(currentEl!);
 
         const newPosition = getComputedStyle(currentEl).gridArea;
 
         if (draggableElIdx < currentElIdx) {
             charts.slice(draggableElIdx + 1, currentElIdx + 1)
                 .forEach((el, idx) =>
-                    (el as HTMLElement).style.gridArea = computedGridPosition(grid, draggableElIdx + idx + 1).toString());
-
+                    (el as HTMLElement).style.gridArea = computedGridPosition(grid, draggableElIdx + idx + 1).toString())
         } else {
             charts.slice(currentElIdx, draggableElIdx)
                 .forEach((el, idx) =>
@@ -88,18 +102,13 @@ const ChartWrapper: React.FC<{
         (draggableEl as HTMLDivElement).style.gridArea = newPosition;
     }
 
-    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-
-    }
-
 
     return (<div
         style={{gridArea: computedGridPosition(grid, index).toString()}}
         className={styles.wrapper}
         ref={wrapperRef}
+        data-symbol={symbol}
         onDragEnter={handleDragEnter}
-        onDragLeave={handleDragLeave}
-
     >
         <div
             className={styles.dndWrapper}
