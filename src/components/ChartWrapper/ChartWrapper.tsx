@@ -77,29 +77,15 @@ const ChartWrapper: React.FC<{
 
     const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
         const chartsWrapperEl = document.getElementById('chartsWrapper');
-        const charts = Array.from(chartsWrapperEl!.childNodes)
-            .sort((a, b) => getIndex(a) - getIndex(b));
 
-        const draggableEl = chartsWrapperEl!.querySelector('[draggable]');
+        const draggableEl = chartsWrapperEl!.querySelector('[draggable]') as HTMLDivElement;
         const currentEl = e.currentTarget;
-        if (currentEl === draggableEl) return;
+        if ((currentEl === draggableEl) || !draggableEl) return;
 
-        const draggableElIdx = getIndex(draggableEl!);
-        const currentElIdx = getIndex(currentEl!);
+        const draggableElArea = getComputedStyle(draggableEl).gridArea;
 
-        const newPosition = getComputedStyle(currentEl).gridArea;
-
-        if (draggableElIdx < currentElIdx) {
-            charts.slice(draggableElIdx + 1, currentElIdx + 1)
-                .forEach((el, idx) =>
-                    (el as HTMLElement).style.gridArea = computedGridPosition(grid, draggableElIdx + idx + 1).toString())
-        } else {
-            charts.slice(currentElIdx, draggableElIdx)
-                .forEach((el, idx) =>
-                    (el as HTMLElement).style.gridArea = computedGridPosition(grid, currentElIdx + idx + 2).toString());
-        }
-
-        (draggableEl as HTMLDivElement).style.gridArea = newPosition;
+        draggableEl.style.gridArea = getComputedStyle(currentEl).gridArea;
+        currentEl.style.gridArea = draggableElArea;
     }
 
 

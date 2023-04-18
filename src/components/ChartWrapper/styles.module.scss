@@ -10,9 +10,10 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-image: url("./../../../public/cats.png");
+      background: rgba(60, 52, 102, 0.42) url("./../../../public/sub.svg");
       background-repeat: no-repeat;
-      background-size: 100% 100%;
+      background-size: 40% 40%;
+      background-position: center center;
     }
 
     .dndWrapper {
